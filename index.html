@@ -48,6 +48,7 @@ body.view h1.top,body.view .panel,body.view .mkb{display:none}
 <h1 class="top">🪪 كارتي<small>كارت شغلك الرقمي: لينك واحد فيه واتساب، اتصال، سوشيال، خدماتك وأسعارك</small></h1>
 <div class="wrap" id="app">
 <section class="panel" id="ed">
+<h2>ابدأ بنموذج جاهز</h2><div class="em" id="pre" style="gap:6px"></div>
 <h2>مين انت؟</h2>
 <label>الاسم أو اسم البراند</label><input id="name" placeholder="مثال: أحمد للتكييفات">
 <label>النشاط</label><input id="job" placeholder="مثال: صيانة وتركيب تكييفات - الإسكندرية">
@@ -118,6 +119,13 @@ function pick(){$("em").innerHTML=EM.map(function(e,i){return '<b data-i="'+i+'"
  $("sw").innerHTML=COL.map(function(c,i){return '<i data-i="'+i+'" style="background:linear-gradient(135deg,'+c[0]+','+c[1]+')" class="'+(D.c==i?"on":"")+'"></i>'}).join("");
  $("em").querySelectorAll("b").forEach(function(b){b.onclick=function(){D.e=+b.dataset.i;pick();upd()}});
  $("sw").querySelectorAll("i").forEach(function(b){b.onclick=function(){D.c=+b.dataset.i;pick();upd()}})}
+var PRE=[["🍔 مطعم",{job:"مطعم وتوصيل",bio:"أكل بيتي طازة كل يوم",msg:"أهلاً، عايز أطلب",m2:"📋 المنيو والأسعار",m3:"🛵 التوصيل لحد فين؟",sv:"وجبة فراخ : 120 جنيه\nوجبة كفتة : 150 جنيه\nالتوصيل : 20 جنيه",hrs:"يومياً من 12 ظهراً لـ 12 بالليل",e:13,c:3}],
+["🛠️ صنايعي",{job:"صيانة وتركيب - خدمة سريعة",bio:"ضمان على الشغل وفني معاك في نفس اليوم",msg:"أهلاً، محتاج فني",m2:"🚨 طوارئ دلوقتي",m3:"💰 عايز سعر",sv:"معاينة : مجاناً\nصيانة عامة : من 150 جنيه",hrs:"24 ساعة",e:0,c:1}],
+["📚 مدرّس",{job:"مدرس خصوصي - ثانوي وإعدادي",bio:"شرح مبسط ومتابعة مع ولي الأمر",msg:"أهلاً، عايز أحجز حصة",m2:"📅 المواعيد المتاحة",m3:"💰 سعر الحصة",sv:"حصة فردية : 150 جنيه\nمجموعة (5 طلاب) : 70 جنيه للفرد",hrs:"من 3 العصر لـ 9 بالليل",e:4,c:5}],
+["💇 كوافير",{job:"صالون وميك أب - حجز بمواعيد",bio:"خصومات على الحجز المسبق",msg:"أهلاً، عايزة أحجز ميعاد",m2:"💄 ميك أب عرايس",m3:"📸 شوفي شغلنا",sv:"سشوار : 100 جنيه\nميك أب سواريه : 400 جنيه",hrs:"من 11 ص لـ 9 م، الجمعة إجازة",e:2,c:2}],
+["💻 فريلانسر",{job:"مصمم / مبرمج مستقل",bio:"تسليم في الميعاد وتعديلات مجانية",msg:"أهلاً، عندي مشروع",m2:"📂 أعمالي السابقة",m3:"💰 تسعير المشروع",sv:"تصميم لوجو : من 500 جنيه\nموقع تعريفي : من 3000 جنيه",hrs:"من الأحد للخميس",e:6,c:4}]];
+$("pre").innerHTML=PRE.map(function(p,i){return '<button class="btn l" data-i="'+i+'" style="display:inline-block;width:auto;margin:0;padding:7px 10px;font-size:13px">'+p[0]+'</button>'}).join("");
+$("pre").querySelectorAll("button").forEach(function(b){b.onclick=function(){var p=PRE[+b.dataset.i][1];for(var k in p)D[k]=p[k];F.forEach(function(f){$(f).value=D[f]||""});pick();upd()}});
 var link="";
 function share(){link=location.href.split("#")[0]+"#c="+enc(D);$("out").style.display="block";$("out").textContent=link+"\n\n(طول اللينك: "+link.length+" حرف"+(link.length>1800?" - طويل شوية، قلل الخدمات أو النص":" - تمام")+")";$("acts").style.display="block";
  $("shwa").href="https://wa.me/?text="+encodeURIComponent((D.name?"كارت "+D.name+": ":"كارتي: ")+link)}
