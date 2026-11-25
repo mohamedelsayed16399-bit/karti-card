@@ -37,6 +37,8 @@ textarea{min-height:80px}
 .card .sv div{display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid #fff3;font-size:15px}.card .sv div:last-child{border:0}
 .card .sv h3{margin:0 0 4px;font-size:14px;opacity:.9}
 .card .ad{font-size:13px;opacity:.95;margin:6px 0}
+.card.dk{background:linear-gradient(160deg,#0b1220,#1f2937)}.card.dk .av{box-shadow:0 0 0 4px var(--b)}.card.dk a.bt.wa{background:var(--b)}
+body.view.dkv{background:linear-gradient(160deg,#0b1220,#1f2937)}
 .card .mk{display:block;margin-top:14px;font-size:12px;color:#fff;opacity:.85}
 body.view{background:linear-gradient(160deg,var(--a),var(--b));min-height:100vh}
 body.view .wrap{display:block;max-width:440px;padding:16px}
@@ -59,6 +61,11 @@ body.view h1.top,body.view .panel,body.view .mkb{display:none}
 <div class="row"><div><label>تيك توك (اليوزر)</label><input id="tt" dir="ltr"></div><div><label>موقع / لينك</label><input id="web" dir="ltr"></div></div>
 <label>لينك الموقع على الخريطة</label><input id="map" dir="ltr" placeholder="لينك من جوجل ماب">
 <label>العنوان</label><input id="addr">
+<label>مواعيد الشغل</label><input id="hrs" placeholder="يومياً من 10 ص لـ 10 م، الجمعة إجازة">
+<label>لينك تقييم جوجل / صفحة التقييمات</label><input id="rv" dir="ltr">
+<h2>رسائل واتساب سريعة (زراير إضافية)</h2><div class="row"><div><label>زرار 2</label><input id="m2" placeholder="🛒 عايز أطلب"></div><div><label>زرار 3</label><input id="m3" placeholder="💰 عايز أعرف الأسعار"></div></div>
+<div class="hint">نص الزرار هو نفسه نص الرسالة اللي هتتبعت</div>
+<label style="margin-top:12px"><input type="checkbox" id="dk" style="width:auto"> الوضع الداكن للكارت</label>
 <h2>الخدمات والأسعار</h2>
 <textarea id="sv" placeholder="كل خدمة في سطر وبعدها : والسعر&#10;تركيب تكييف : 500 جنيه&#10;صيانة دورية : 250 جنيه"></textarea>
 <div class="hint">اكتب الخدمة ثم : ثم السعر (اختياري)</div>
@@ -79,8 +86,8 @@ body.view h1.top,body.view .panel,body.view .mkb{display:none}
 var $=function(i){return document.getElementById(i)};
 var COL=[["#0f766e","#14b8a6"],["#1d4ed8","#38bdf8"],["#7e22ce","#ec4899"],["#be123c","#fb923c"],["#111827","#475569"],["#15803d","#a3e635"],["#b45309","#fcd34d"]];
 var EM=["🛠️","🩺","💇","🍰","📚","🚚","💻","📸","🏠","👗","🚗","🎓","💪","🍔","🌟"];
-var K="karti_v1",F=["name","job","bio","wa","tel","msg","ig","fb","tt","web","map","addr","sv"];
-var D={c:0,e:0};F.forEach(function(f){D[f]=""});
+var K="karti_v1",F=["name","job","bio","wa","tel","msg","ig","fb","tt","web","map","addr","sv","hrs","rv","m2","m3"];
+var D={c:0,e:0,dk:0};F.forEach(function(f){D[f]=""});
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function enc(o){var s=unescape(encodeURIComponent(JSON.stringify(o)));return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")}
 function dec(h){h=h.replace(/-/g,"+").replace(/_/g,"/");while(h.length%4)h+="=";return JSON.parse(decodeURIComponent(escape(atob(h))))}
@@ -91,6 +98,7 @@ function cardHTML(d,view){
  if(d.bio)h+='<div class="bio">'+esc(d.bio)+'</div>';
  var w=eg(d.wa),t=eg(d.tel||d.wa);
  if(w)h+='<a class="bt wa" href="https://wa.me/'+w+(d.msg?'?text='+encodeURIComponent(d.msg):'')+'">💬 كلمني واتساب</a>';
+ [d.m2,d.m3].forEach(function(m){if(w&&m&&m.trim())h+='<a class="bt" style="background:#ffffff33;color:#fff" href="https://wa.me/'+w+'?text='+encodeURIComponent(m.trim())+'">'+esc(m.trim())+'</a>'});
  if(t)h+='<a class="bt" href="tel:+'+t+'">📞 اتصل</a>';
  if(d.ig)h+='<a class="bt" href="https://instagram.com/'+encodeURIComponent(d.ig.replace(/^@/,""))+'">📷 إنستجرام</a>';
  if(safeUrl(d.fb))h+='<a class="bt" href="'+esc(safeUrl(d.fb))+'">👍 فيسبوك</a>';
@@ -100,16 +108,18 @@ function cardHTML(d,view){
  var L=(d.sv||"").split("\n").map(function(x){return x.trim()}).filter(Boolean);
  if(L.length)h+='<div class="sv"><h3>الخدمات والأسعار</h3>'+L.map(function(x){var p=x.split(/\s*[:：]\s*/);return '<div><span>'+esc(p[0])+'</span><b>'+esc(p.slice(1).join(": "))+'</b></div>'}).join("")+'</div>';
  if(d.addr)h+='<div class="ad">📌 '+esc(d.addr)+'</div>';
+ if(d.hrs)h+='<div class="ad">🕒 '+esc(d.hrs)+'</div>';
+ if(safeUrl(d.rv))h+='<a class="bt" style="background:#fde68a" href="'+esc(safeUrl(d.rv))+'">⭐ قيّمنا</a>';
  h+='<a class="mk" href="'+(view?'./':'#')+'">اعمل كارتك الرقمي إنت كمان مجاناً ← كارتي</a>';
  return h}
-function paint(el,d,view){if(view){document.documentElement.style.setProperty("--a",COL[d.c][0]);document.documentElement.style.setProperty("--b",COL[d.c][1])}el.style.setProperty("--a",COL[d.c][0]);el.style.setProperty("--b",COL[d.c][1]);el.innerHTML=cardHTML(d,view)}
+function paint(el,d,view){if(view){document.documentElement.style.setProperty("--a",COL[d.c][0]);document.documentElement.style.setProperty("--b",COL[d.c][1])}el.style.setProperty("--a",COL[d.c][0]);el.style.setProperty("--b",COL[d.c][1]);el.innerHTML=cardHTML(d,view);el.classList.toggle('dk',!!d.dk);document.body.classList.toggle('dkv',!!d.dk&&view)}
 function upd(){paint($("card"),D,false);$("card").style.setProperty("--a",COL[D.c][0]);$("card").style.setProperty("--b",COL[D.c][1]);try{localStorage.setItem(K,JSON.stringify(D))}catch(e){}}
 function pick(){$("em").innerHTML=EM.map(function(e,i){return '<b data-i="'+i+'" class="'+(D.e==i?"on":"")+'">'+e+'</b>'}).join("");
  $("sw").innerHTML=COL.map(function(c,i){return '<i data-i="'+i+'" style="background:linear-gradient(135deg,'+c[0]+','+c[1]+')" class="'+(D.c==i?"on":"")+'"></i>'}).join("");
  $("em").querySelectorAll("b").forEach(function(b){b.onclick=function(){D.e=+b.dataset.i;pick();upd()}});
  $("sw").querySelectorAll("i").forEach(function(b){b.onclick=function(){D.c=+b.dataset.i;pick();upd()}})}
 var link="";
-function share(){link=location.href.split("#")[0]+"#c="+enc(D);$("out").style.display="block";$("out").textContent=link;$("acts").style.display="block";
+function share(){link=location.href.split("#")[0]+"#c="+enc(D);$("out").style.display="block";$("out").textContent=link+"\n\n(طول اللينك: "+link.length+" حرف"+(link.length>1800?" - طويل شوية، قلل الخدمات أو النص":" - تمام")+")";$("acts").style.display="block";
  $("shwa").href="https://wa.me/?text="+encodeURIComponent((D.name?"كارت "+D.name+": ":"كارتي: ")+link)}
 $("mk").onclick=function(){if(!D.name&&!D.wa){alert("اكتب اسمك ورقم الواتساب على الأقل");return}share();$("out").scrollIntoView({behavior:"smooth"})};
 $("cp").onclick=function(){if(navigator.clipboard)navigator.clipboard.writeText(link).then(function(){$("cp").textContent="✅ اتنسخ"});else{prompt("انسخ اللينك",link)}};
@@ -122,13 +132,14 @@ $("img").onclick=function(){var c=document.createElement("canvas");c.width=1080;
  var L=(D.sv||"").split("\n").filter(function(z){return z.trim()}).slice(0,3);L.forEach(function(s){x.fillStyle="#fff";x.font="38px Tahoma,Arial";x.fillText(s.trim(),540,y+20);y+=60});
  x.font="30px Tahoma,Arial";x.globalAlpha=.85;x.fillStyle="#fff";x.fillText("اعمل كارتك مجاناً: mohamedelsayed16399-bit.github.io/karti-card",540,1300);
  c.toBlob(function(b){var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="karti.png";a.click()})};
+$("dk").onchange=function(){D.dk=this.checked?1:0;upd()};
 F.forEach(function(f){$(f).addEventListener("input",function(){D[f]=$(f).value;upd()})});
 function init(){
  var m=location.hash.match(/^#c=(.+)$/);
- if(m){try{var d=dec(m[1]);F.forEach(function(f){d[f]=d[f]||""});d.c=d.c|0;d.e=d.e|0;if(d.c<0||d.c>=COL.length)d.c=0;document.body.className="view";document.title=(d.name||"كارتي")+" - كارت";var el=$("card");paint(el,d,true);D=d;return}catch(e){}}
+ if(m){try{var d=dec(m[1]);F.forEach(function(f){d[f]=d[f]||""});d.c=d.c|0;d.dk=d.dk|0;d.e=d.e|0;if(d.c<0||d.c>=COL.length)d.c=0;document.body.className="view";document.title=(d.name||"كارتي")+" - كارت";var el=$("card");paint(el,d,true);D=d;return}catch(e){}}
  document.body.className="";
  try{var s=JSON.parse(localStorage.getItem(K));if(s)for(var k in s)D[k]=s[k]}catch(e){}
- F.forEach(function(f){$(f).value=D[f]||""});pick();upd()}
+ F.forEach(function(f){$(f).value=D[f]||""});$("dk").checked=!!D.dk;pick();upd()}
 window.addEventListener("hashchange",function(){location.reload()});
 init();
 </script></body></html>
